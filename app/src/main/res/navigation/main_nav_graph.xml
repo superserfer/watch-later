@@ -30,5 +30,17 @@
         <action
             android:id="@+id/action_createFragment_to_overviewFragment"
             app:destination="@id/overviewFragment" />
+        <action
+            android:id="@+id/action_createFragment_to_selectMovieFragment"
+            app:destination="@id/selectMovieFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/selectMovieFragment"
+        android:name="com.example.watchlater.create.selectMovie.SelectMovieFragment"
+        android:label="fragment_select_movie"
+        tools:layout="@layout/fragment_select_movie" >
+        <action
+            android:id="@+id/action_selectMovieFragment_to_createFragment"
+            app:destination="@id/createFragment" />
     </fragment>
 </navigation>
