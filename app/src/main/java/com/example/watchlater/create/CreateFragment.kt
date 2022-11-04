@@ -25,7 +25,7 @@ class CreateFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this)[CreateViewModel::class.java]
+        viewModel = ViewModelProvider(requireActivity(), CreateViewModel.Factory(requireActivity().application))[CreateViewModel::class.java]
         val binding = FragmentCreateBinding.inflate(inflater)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
@@ -35,20 +35,17 @@ class CreateFragment : Fragment() {
         }
 
         binding.saveButton.setOnClickListener {
-            viewModel.saveMovieReminder()
+            if (viewModel.hasSetMovie.value == true && viewModel.hasSetDate.value == true) {
+                viewModel.saveMovieReminder()
+                Toast.makeText(requireContext(), "MovieReminder Saved!", Toast.LENGTH_SHORT).show()
+                findNavController().navigate(CreateFragmentDirections.actionCreateFragmentToOverviewFragment())
+            } else {
+                Toast.makeText(requireContext(), "Please Provide the Movie & Date!", Toast.LENGTH_SHORT).show()
+            }
         }
 
         binding.datePicker.setOnDateChangedListener { _, year, month, day ->
             viewModel.setDate(year, month, day)
-        }
-
-        viewModel.movieSaved.observe(viewLifecycleOwner) {
-            if (it) {
-                Toast.makeText(requireContext(), "MovieReminder Saved!", Toast.LENGTH_SHORT).show()
-                findNavController().navigate(CreateFragmentDirections.actionCreateFragmentToOverviewFragment())
-            } else {
-                Toast.makeText(requireContext(), "Something went wrong!", Toast.LENGTH_SHORT).show()
-            }
         }
 
         return binding.root

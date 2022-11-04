@@ -1,5 +1,6 @@
 package com.example.watchlater.overview
 
+import android.app.Application
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.watchlater.R
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModel
 import androidx.navigation.fragment.findNavController
 import com.example.watchlater.databinding.FragmentOverviewBinding
 
@@ -25,12 +27,15 @@ class OverviewFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this)[OverviewViewModel::class.java]
+        viewModel = ViewModelProvider(this, OverviewViewModel.Factory(requireActivity().application))[OverviewViewModel::class.java]
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_overview, container, false)
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
 
-        adapter = MovieReminderAdapter(MovieReminderListener {  })
+        adapter = MovieReminderAdapter(MovieReminderListener {
+            findNavController().navigate(OverviewFragmentDirections.actionOverviewFragmentToDetailFragment(it))
+        })
+
         binding.movieReminderRecycler.adapter = adapter
 
         viewModel.movieReminders.observe(viewLifecycleOwner) {

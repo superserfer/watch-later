@@ -1,13 +1,17 @@
 package com.example.watchlater.create
 
+import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.watchlater.BuildConfig
 import com.example.watchlater.Movie
 import com.example.watchlater.MovieReminder
 import com.example.watchlater.api.SimklApi
 import com.example.watchlater.api.parseMovieJsonResult
+import com.example.watchlater.database.getDatabase
+import com.example.watchlater.repository.MovieReminderRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -15,17 +19,25 @@ import org.json.JSONArray
 import retrofit2.await
 import java.time.LocalDate
 
-class CreateViewModel : ViewModel() {
+class CreateViewModel(application: Application) : ViewModel() {
 
-    private val _movieSaved = MutableLiveData<Boolean>()
-    val movieSaved
-        get() = _movieSaved
+    private val database = getDatabase(application)
+    private val movieReminderRepository = MovieReminderRepository(database)
 
     private val _hasSetMovie = MutableLiveData<Boolean>(false)
+    val hasSetMovie
+        get() = _hasSetMovie
 
     private val _hasSetDate = MutableLiveData<Boolean>(false)
+    val hasSetDate
+        get() = _hasSetDate
 
-    private val _movieReminder = MutableLiveData<MovieReminder>()
+    private val _movieReminder = MutableLiveData(MovieReminder(
+        title = "",
+        releaseYear = 2000,
+        posterUrl = "",
+        reminderDataInput = ""
+    ))
     val movieReminder
         get() = _movieReminder
 
@@ -38,7 +50,7 @@ class CreateViewModel : ViewModel() {
             title = "",
             releaseYear = 2000,
             posterUrl = "",
-            reminderDataInput = LocalDate.of(9999,1,1)
+            reminderDataInput = ""
         )
         _hasSetMovie.value = false
         _hasSetDate.value = false
@@ -46,7 +58,8 @@ class CreateViewModel : ViewModel() {
 
     fun setDate(year: Int, month: Int, day: Int) {
         if (_movieReminder.value == null) initMovieReminder()
-        _movieReminder.value?.reminderDataInput = LocalDate.of(year, month, day)
+        _movieReminder.value?.reminderDataInput = "$year $month $day"
+        _hasSetDate.value = true
     }
 
     fun setMovie(movie: Movie) {
@@ -59,11 +72,11 @@ class CreateViewModel : ViewModel() {
 
     fun saveMovieReminder() {
         if (_hasSetMovie.value == true && _hasSetDate.value == true) {
-            // TODO: SaveReminder to Room-DB
-            _movieSaved.value = true
+            viewModelScope.launch {
+                _movieReminder.value?.let { movieReminderRepository.insertMovieReminder(it) }
+            }
             initMovieReminder()
-        } else {
-            _movieSaved.value = false
+            _searchedMovie.value = arrayListOf()
         }
     }
 
@@ -79,6 +92,16 @@ class CreateViewModel : ViewModel() {
                     )
                 } catch (e: Exception) { }
             }
+        }
+    }
+
+    class Factory(val app: Application) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(CreateViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return CreateViewModel(app) as T
+            }
+            throw IllegalArgumentException("Unable to construct viewmodel")
         }
     }
 }

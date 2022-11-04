@@ -1,31 +1,27 @@
 package com.example.watchlater.overview
 
+import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.watchlater.BuildConfig
+import androidx.lifecycle.ViewModelProvider
 import com.example.watchlater.MovieReminder
-import com.example.watchlater.api.SimklApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import retrofit2.await
-import java.time.LocalDate
-import java.util.*
+import com.example.watchlater.database.getDatabase
+import com.example.watchlater.repository.MovieReminderRepository
 
-class OverviewViewModel : ViewModel() {
-    // TODO: Implement the ViewModel
+class OverviewViewModel(application: Application) : ViewModel() {
 
-    private val _movieString = MutableLiveData<String>("Not yet loaded")
-    val movieString
-        get() = _movieString
+    private val database = getDatabase(application)
+    private val movieReminderRepository = MovieReminderRepository(database)
 
-    val movieReminders = MutableLiveData<List<MovieReminder>>(listOf(
-        MovieReminder("Star Wars 3", 2005, "https://simkl.in/posters/84/845586d5ed3ff7c5_ca.jpg", LocalDate.of(2022,12,3)),
-        MovieReminder("Star Wars 3", 2005, "https://simkl.in/posters/84/845586d5ed3ff7c5_ca.jpg", LocalDate.of(2022,12,3)),
-        MovieReminder("Star Wars 3", 2005, "https://simkl.in/posters/84/845586d5ed3ff7c5_ca.jpg", LocalDate.of(2022,12,3)),
-        MovieReminder("Star Wars 3", 2005, "https://simkl.in/posters/84/845586d5ed3ff7c5_ca.jpg", LocalDate.of(2022,12,3)),
-        MovieReminder("Star Wars 3", 2005, "https://simkl.in/posters/84/845586d5ed3ff7c5_ca.jpg", LocalDate.of(2022,12,3)),
-        MovieReminder("Star Wars 3", 2005, "https://simkl.in/posters/84/845586d5ed3ff7c5_ca.jpg", LocalDate.of(2022,12,3))
-    ))
+    val movieReminders = movieReminderRepository.movieReminders
+
+    class Factory(val app: Application) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(OverviewViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return OverviewViewModel(app) as T
+            }
+            throw IllegalArgumentException("Unable to construct viewmodel")
+        }
+    }
 }

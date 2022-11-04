@@ -21,7 +21,15 @@
         android:id="@+id/detailFragment"
         android:name="com.example.watchlater.detail.DetailFragment"
         android:label="fragment_detail"
-        tools:layout="@layout/fragment_detail" />
+        tools:layout="@layout/fragment_detail">
+        <argument
+            android:name="selectedMovieReminder"
+            app:argType="com.example.watchlater.MovieReminder"/>
+        <action
+            android:id="@+id/action_detailFragment_to_overviewFragment"
+            app:destination="@id/overviewFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
     <fragment
         android:id="@+id/createFragment"
         android:name="com.example.watchlater.create.CreateFragment"

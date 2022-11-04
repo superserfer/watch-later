@@ -6,27 +6,35 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
 import com.example.watchlater.R
+import com.example.watchlater.databinding.FragmentDetailBinding
+import com.squareup.picasso.Picasso
 
 class DetailFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = DetailFragment()
-    }
 
     private lateinit var viewModel: DetailViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_detail, container, false)
-    }
+    ): View {
+        viewModel = ViewModelProvider(this, DetailViewModel.Factory(requireActivity().application))[DetailViewModel::class.java]
+        val binding = FragmentDetailBinding.inflate(inflater)
+        binding.lifecycleOwner = viewLifecycleOwner
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this)[DetailViewModel::class.java]
-        // TODO: Use the ViewModel
-    }
+        binding.viewModel = viewModel
 
+        val movieReminder = DetailFragmentArgs.fromBundle(requireArguments()).selectedMovieReminder
+        Picasso.get().load(movieReminder.posterUrl).into(binding.imageView)
+        binding.movieReminder = movieReminder
+
+        viewModel.navigateBack.observe(viewLifecycleOwner) {
+            if (it == true) {
+                findNavController().navigate(DetailFragmentDirections.actionDetailFragmentToOverviewFragment())
+            }
+        }
+
+        return binding.root
+    }
 }
