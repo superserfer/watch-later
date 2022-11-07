@@ -12,6 +12,7 @@ import com.example.watchlater.api.SimklApi
 import com.example.watchlater.api.parseMovieJsonResult
 import com.example.watchlater.database.getDatabase
 import com.example.watchlater.repository.MovieReminderRepository
+import com.example.watchlater.utils.sendNotification
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

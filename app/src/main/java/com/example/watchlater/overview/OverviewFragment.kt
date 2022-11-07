@@ -11,6 +11,8 @@ import com.example.watchlater.R
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModel
 import androidx.navigation.fragment.findNavController
+import com.example.watchlater.MainActivity
+import com.example.watchlater.MovieReminder
 import com.example.watchlater.databinding.FragmentOverviewBinding
 
 class OverviewFragment : Fragment() {
@@ -27,6 +29,11 @@ class OverviewFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val movieReminder = requireActivity().intent.getSerializableExtra(MainActivity.EXTRA_MovieReminderDataItem) as MovieReminder?
+        if (movieReminder != null) {
+            findNavController().navigate(OverviewFragmentDirections.actionOverviewFragmentToDetailFragment(movieReminder))
+        }
+
         viewModel = ViewModelProvider(this, OverviewViewModel.Factory(requireActivity().application))[OverviewViewModel::class.java]
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_overview, container, false)
         binding.lifecycleOwner = viewLifecycleOwner

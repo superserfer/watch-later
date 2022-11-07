@@ -10,9 +10,11 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.watchlater.BuildConfig
+import com.example.watchlater.MovieReminder
 import com.example.watchlater.R
 import com.example.watchlater.api.SimklApi
 import com.example.watchlater.databinding.FragmentCreateBinding
+import com.example.watchlater.utils.sendNotification
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.lang.Exception
@@ -38,6 +40,14 @@ class CreateFragment : Fragment() {
             if (viewModel.hasSetMovie.value == true && viewModel.hasSetDate.value == true) {
                 viewModel.saveMovieReminder()
                 Toast.makeText(requireContext(), "MovieReminder Saved!", Toast.LENGTH_SHORT).show()
+                sendNotification(requireContext(),
+                MovieReminder(
+                    title = "Test",
+                    releaseYear = 2012,
+                    reminderDataInput = "2022 12 1",
+                    posterUrl = "https://developer.android.com/static/training/material/images/fab.png"
+                )
+                )
                 findNavController().navigate(CreateFragmentDirections.actionCreateFragmentToOverviewFragment())
             } else {
                 Toast.makeText(requireContext(), "Please Provide the Movie & Date!", Toast.LENGTH_SHORT).show()
